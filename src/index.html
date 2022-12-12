@@ -1,14 +1,31 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Page title</title>
-    <link rel="stylesheet" href="./sass/index.scss" />
-    <script type="module" src="./index.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>SimpleLightbox library</title>
+
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <!-- ❗️❗️❗️ Add partials like so for every page -->
-    <include src="./partials/example.html"></include>
+    <div class="container">
+      <form class="search-form" id="search-form">
+        <input
+          type="text"
+          name="searchQuery"
+          autocomplete="off"
+          placeholder="Search images..."
+          pattern="^[a-zA-Z -]*$"
+        />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+    <!-- Add gallery items to this list -->
+    <div class="gallery">
+      <!-- Obraz karty -->
+    </div>
+
+    <script src="js/index.js" type="module"></script>
   </body>
 </html>
