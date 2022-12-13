@@ -27,6 +27,7 @@ button {
 .container {
   padding: 20px;
   background-color: blue;
+  margin-bottom: 20px;
 }
 #search-box {
   font: inherit;

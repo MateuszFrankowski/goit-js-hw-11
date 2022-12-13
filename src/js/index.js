@@ -14,12 +14,13 @@ function renderImages(images) {
   console.log({ images });
   const markup = images
     .map(
-      ({ previewURL, largeImageURL, likes, views, comments, downloads }) =>
-        `<div class="photo-card">
+      ({ webformatURL, largeImageURL, likes, views, comments, downloads }) =>
+        `
+  <div class="gallery__card">
       <a class="gallery__item" href="${largeImageURL}">
         <img
         class="gallery__image"
-        src="${previewURL}"        
+        src="${webformatURL}"        
         loading="lazy"
      
       />
@@ -27,37 +28,46 @@ function renderImages(images) {
   
   <div class="info">
     <p class="info-item">
-      <b>"${likes}"</b>
+      <b>Likes</b>
+      ${likes}
     </p>
     <p class="info-item">
-      <b>"${views}"</b>
+     <b>Views</b>
+      ${views}
     </p>
     <p class="info-item">
-      <b>${comments}</b>
+          <b>Comments</b>
+      ${comments}
     </p>
     <p class="info-item">
-      <b>${downloads}</b>
+      <b>Downloads</b>
+      ${downloads}
     </p>
   </div>
 </div>`
     )
     .join('');
   gallery.insertAdjacentHTML('afterbegin', markup);
+  lightbox.refresh();
 }
 
 const imageSearch = async event => {
   event.preventDefault();
+  gallery.innerHTML = '';
   if (inputField.validity.patternMismatch === true) {
-    gallery.innerHTML = '';
     console.log(event.target.value);
     return Notify.failure('Oops, use letters only');
   }
   const searchedImage = inputField.value.trim();
-  if (searchedImage.length === 0) return (gallery.innerHTML = '');
   const foundImages = await galleryItems(searchedImage);
 
   const imagesData = await foundImages.data.hits;
-
+  if (imagesData.length === 0) {
+    Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    return (gallery.innerHTML = '');
+  }
   return renderImages(imagesData);
 
   if (error) {
