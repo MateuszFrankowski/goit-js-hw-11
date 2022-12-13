@@ -9,12 +9,20 @@ import { galleryItems } from '../js/gallery-items.js';
 const gallery = document.querySelector('div.gallery');
 const inputField = document.querySelector('input[name="searchQuery"]');
 const form = document.querySelector('form');
-
+let oldSearchedImage;
 function renderImages(images) {
   console.log({ images });
   const markup = images
     .map(
-      ({ webformatURL, largeImageURL, likes, views, comments, downloads }) =>
+      ({
+        webformatURL,
+        largeImageURL,
+        likes,
+        views,
+        comments,
+        downloads,
+        tags,
+      }) =>
         `
   <div class="gallery__card">
       <a class="gallery__item" href="${largeImageURL}">
@@ -22,6 +30,7 @@ function renderImages(images) {
         class="gallery__image"
         src="${webformatURL}"        
         loading="lazy"
+        alt="${tags}"
      
       />
       </a>
@@ -47,20 +56,27 @@ function renderImages(images) {
 </div>`
     )
     .join('');
-  gallery.insertAdjacentHTML('afterbegin', markup);
+  gallery.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
 
 const imageSearch = async event => {
   event.preventDefault();
-  gallery.innerHTML = '';
+
   if (inputField.validity.patternMismatch === true) {
     console.log(event.target.value);
     return Notify.failure('Oops, use letters only');
   }
   const searchedImage = inputField.value.trim();
   const foundImages = await galleryItems(searchedImage);
-
   const imagesData = await foundImages.data.hits;
   if (imagesData.length === 0) {
     Notify.failure(
@@ -68,11 +84,17 @@ const imageSearch = async event => {
     );
     return (gallery.innerHTML = '');
   }
+
+  if (searchedImage != oldSearchedImage) {
+    gallery.innerHTML = '';
+    oldSearchedImage = searchedImage;
+    Notify.success(`Hurray! We found ${foundImages.data.total} images`);
+  }
   return renderImages(imagesData);
 
   if (error) {
     countryInfo.innerHTML = '';
-    Notify.failure('Oops, there is no country with that name', error);
+    Notify.failure('Error Search', error);
   }
 };
 form.addEventListener('submit', imageSearch);

@@ -28,6 +28,8 @@ button {
   padding: 20px;
   background-color: blue;
   margin-bottom: 20px;
+  position: sticky;
+  top: 0px;
 }
 #search-box {
   font: inherit;

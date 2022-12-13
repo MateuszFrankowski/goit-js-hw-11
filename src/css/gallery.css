@@ -20,11 +20,14 @@
 
 .gallery__card {
   height: 280px;
+  max-width: 260.5px;
 }
 
-.gallery__image:hover {
+/* .gallery__image:hover {
   transform: scale(1.03);
-}
+  z-index: -100;
+ 
+} */
 
 .gallery__image {
   width: 100%; /* or any custom size */
