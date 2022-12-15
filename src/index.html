@@ -19,7 +19,11 @@
           placeholder="Search images..."
           pattern="^[a-zA-Z -]*$"
         />
-        <button type="submit">Search</button>
+        <button type="submit" aria-label="Search">
+          <svg class="btn-subs__icon">
+            <use class="icon" href="images/icons.svg#icon-search"></use>
+          </svg>
+        </button>
       </form>
     </div>
     <!-- Add gallery items to this list -->

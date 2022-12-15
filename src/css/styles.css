@@ -21,8 +21,12 @@ input {
   font: inherit;
 }
 button {
-  padding: 8px 12px;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 button.load-more {
   margin: auto;
@@ -37,10 +41,21 @@ button.load-more {
   margin-bottom: 20px;
   position: sticky;
   top: 0px;
+  display: flex;
+  gap: 0px;
+  justify-content: center;
 }
 #search-box {
   font: inherit;
   padding: 8px;
   max-width: 320px;
   margin-bottom: 16px;
+}
+
+svg.btn-subs__icon {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

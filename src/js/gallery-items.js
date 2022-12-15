@@ -16,7 +16,7 @@ export const galleryItems = async image => {
     console.log('response', response);
 
     page++;
-    return response;
+    return { foundImages: response, page, per_page };
   } catch (error) {
     Notify.failure(error.message);
     return error;

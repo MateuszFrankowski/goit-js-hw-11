@@ -77,7 +77,7 @@ const imageSearch = async event => {
   event.preventDefault();
   loadMoreButton.style.display = 'none';
   const searchedImage = inputField.value.trim();
-  const foundImages = await galleryItems(searchedImage);
+  const { foundImages, page, per_page } = await galleryItems(searchedImage);
   const imagesData = await foundImages.data.hits;
   if (imagesData.length === 0) {
     Notify.failure(
@@ -90,22 +90,27 @@ const imageSearch = async event => {
   if (searchedImage != oldSearchedImage) {
     gallery.innerHTML = '';
     oldSearchedImage = searchedImage;
-    Notify.success(`Hurray! We found ${foundImages.data.total} images`);
+    Notify.success(`Hurray! We found ${foundImages.data.totalHits} images`);
   }
 
   return renderImages(imagesData);
 };
 const imageLoader = async () => {
   loadMoreButton.style.display = 'none';
-  let allImages = document.querySelectorAll('img');
-  let alreadyLoadedImages = allImages.length;
   const searchedImage = inputField.value.trim();
-  const foundImages = await galleryItems(searchedImage);
+  const { foundImages, page, per_page } = await galleryItems(searchedImage);
   const imagesData = await foundImages.data.hits;
-  console.log('tu', imagesData.totalHits, foundImages);
-  if (foundImages.data.totalHits === alreadyLoadedImages) {
+  console.log(
+    'znalezione obrazki i wygenerowane',
+    foundImages.data.totalHits,
+    (page - 1) * per_page
+  );
+  if (
+    foundImages.data.totalHits > 0 &&
+    (page - 1) * per_page >= foundImages.data.totalHits
+  ) {
     observer.unobserve(loadMoreButton);
-    Notify.failure(
+    return Notify.failure(
       "We're sorry, but you've reached the end of search results."
     );
   }
