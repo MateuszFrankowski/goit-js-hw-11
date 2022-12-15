@@ -92,7 +92,15 @@ const imageSearch = async event => {
     oldSearchedImage = searchedImage;
     Notify.success(`Hurray! We found ${foundImages.data.totalHits} images`);
   }
-
+  if (
+    foundImages.data.totalHits > 0 &&
+    (page - 1) * per_page >= foundImages.data.totalHits
+  ) {
+    observer.unobserve(loadMoreButton);
+    return Notify.info(
+      "We're sorry, but you've reached the end of search results."
+    );
+  }
   return renderImages(imagesData);
 };
 const imageLoader = async () => {
@@ -110,7 +118,7 @@ const imageLoader = async () => {
     (page - 1) * per_page >= foundImages.data.totalHits
   ) {
     observer.unobserve(loadMoreButton);
-    return Notify.failure(
+    return Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
   }
