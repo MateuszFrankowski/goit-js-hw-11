@@ -8,6 +8,7 @@ import { galleryItems } from '../js/gallery-items.js';
 
 const gallery = document.querySelector('div.gallery');
 const inputField = document.querySelector('input[name="searchQuery"]');
+const loadMoreButton = document.querySelector('button.load-more');
 const form = document.querySelector('form');
 let oldSearchedImage;
 function renderImages(images) {
@@ -58,6 +59,7 @@ function renderImages(images) {
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
+  loadMoreButton.style.display = 'flex';
   const { height: cardHeight } = document
     .querySelector('.gallery')
     .firstElementChild.getBoundingClientRect();
@@ -66,19 +68,49 @@ function renderImages(images) {
     top: cardHeight * 2,
     behavior: 'smooth',
   });
+  //
+
+  observer.observe(loadMoreButton);
 }
 
 const imageSearch = async event => {
   event.preventDefault();
-
-  if (inputField.validity.patternMismatch === true) {
-    console.log(event.target.value);
-    return Notify.failure('Oops, use letters only');
-  }
+  loadMoreButton.style.display = 'none';
   const searchedImage = inputField.value.trim();
   const foundImages = await galleryItems(searchedImage);
   const imagesData = await foundImages.data.hits;
   if (imagesData.length === 0) {
+    Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    observer.unobserve(loadMoreButton);
+    return (gallery.innerHTML = '');
+  }
+
+  if (searchedImage != oldSearchedImage) {
+    gallery.innerHTML = '';
+    oldSearchedImage = searchedImage;
+    Notify.success(`Hurray! We found ${foundImages.data.total} images`);
+  }
+
+  return renderImages(imagesData);
+};
+const imageLoader = async () => {
+  loadMoreButton.style.display = 'none';
+  let allImages = document.querySelectorAll('img');
+  let alreadyLoadedImages = allImages.length;
+  const searchedImage = inputField.value.trim();
+  const foundImages = await galleryItems(searchedImage);
+  const imagesData = await foundImages.data.hits;
+  console.log('tu', imagesData.totalHits, foundImages);
+  if (foundImages.data.totalHits === alreadyLoadedImages) {
+    observer.unobserve(loadMoreButton);
+    Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
+  }
+  if (imagesData.length === 0) {
+    observer.unobserve(loadMoreButton);
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
@@ -88,15 +120,20 @@ const imageSearch = async event => {
   if (searchedImage != oldSearchedImage) {
     gallery.innerHTML = '';
     oldSearchedImage = searchedImage;
-    Notify.success(`Hurray! We found ${foundImages.data.total} images`);
+    Notify.success(`Hurray! We found ${foundImages.data.totalHits} images`);
   }
-  return renderImages(imagesData);
 
-  if (error) {
-    countryInfo.innerHTML = '';
-    Notify.failure('Error Search', error);
-  }
+  return renderImages(imagesData);
 };
 form.addEventListener('submit', imageSearch);
-
 let lightbox = new SimpleLightbox('.gallery a');
+loadMoreButton.style.display = 'none';
+loadMoreButton.addEventListener('click', imageSearch);
+let debounce = 0;
+const observer = new IntersectionObserver(([entry]) => {
+  if (!entry.isIntersecting) return;
+  if (debounce + 1000 < Date.now()) {
+    imageLoader();
+    debounce = Date.now();
+  }
+});
