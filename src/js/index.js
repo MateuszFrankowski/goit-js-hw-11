@@ -60,14 +60,6 @@ function renderImages(images) {
   gallery.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
   loadMoreButton.style.display = 'flex';
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
-
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
   //
 
   observer.observe(loadMoreButton);
@@ -75,6 +67,8 @@ function renderImages(images) {
 
 const imageSearch = async event => {
   event.preventDefault();
+  window.scrollTo(0, 0);
+  observer.unobserve(loadMoreButton);
   loadMoreButton.style.display = 'none';
   const searchedImage = inputField.value.trim();
   const { foundImages, page, per_page } = await galleryItems(searchedImage);
@@ -83,7 +77,7 @@ const imageSearch = async event => {
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-    observer.unobserve(loadMoreButton);
+
     return (gallery.innerHTML = '');
   }
 
@@ -101,6 +95,7 @@ const imageSearch = async event => {
       "We're sorry, but you've reached the end of search results."
     );
   }
+
   return renderImages(imagesData);
 };
 const imageLoader = async () => {
@@ -135,8 +130,16 @@ const imageLoader = async () => {
     oldSearchedImage = searchedImage;
     Notify.success(`Hurray! We found ${foundImages.data.totalHits} images`);
   }
+  renderImages(imagesData);
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
 
-  return renderImages(imagesData);
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
+  return;
 };
 form.addEventListener('submit', imageSearch);
 let lightbox = new SimpleLightbox('.gallery a');
