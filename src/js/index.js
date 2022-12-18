@@ -9,8 +9,49 @@ import { galleryItems } from '../js/gallery-items.js';
 const gallery = document.querySelector('div.gallery');
 const inputField = document.querySelector('input[name="searchQuery"]');
 const loadMoreButton = document.querySelector('button.load-more');
+const loadMoreAutomatic = document.querySelector('div.automatic-loading');
+const scrollUpButton = document.querySelector('button.scroll-up');
+
+const imageLoaderChanger = document.querySelector('button.changer');
 const form = document.querySelector('form');
-let oldSearchedImage;
+const automaticScroll = () => {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
+};
+const automaticScrollUp = () => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth',
+  });
+};
+let searchLimit = false;
+let automaticLoading = true;
+
+const observator = observeOn => {
+  if (observeOn === true) {
+    if (automaticLoading === true) {
+      observer.observe(loadMoreAutomatic);
+      loadMoreAutomatic.style.display = '';
+      loadMoreButton.style.display = 'none';
+    } else {
+      loadMoreAutomatic.style.display = 'none';
+      loadMoreButton.style.display = '';
+      observer.unobserve(loadMoreAutomatic);
+    }
+  } else {
+    observer.unobserve(loadMoreAutomatic);
+    loadMoreButton.style.display = 'none';
+    loadMoreAutomatic.style.display = 'none';
+  }
+};
+let oldSearchedImage = '';
 function renderImages(images) {
   console.log({ images });
   const markup = images
@@ -59,18 +100,23 @@ function renderImages(images) {
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
-  loadMoreButton.style.display = 'flex';
-  //
-
-  observer.observe(loadMoreButton);
+  observator(true);
 }
 
 const imageSearch = async event => {
   event.preventDefault();
+  let searchedImage = inputField.value.trim();
+  if (searchedImage === oldSearchedImage && (searchLimit = true)) {
+    console.log(searchedImage, oldSearchedImage);
+    return Notify.success(
+      "We're sorry, but you've reached the end of search results."
+    );
+  }
+  oldSearchedImage = searchedImage;
+  observator(false);
   window.scrollTo(0, 0);
-  observer.unobserve(loadMoreButton);
-  loadMoreButton.style.display = 'none';
-  const searchedImage = inputField.value.trim();
+  searchLimit = false;
+
   const { foundImages, page, per_page } = await galleryItems(searchedImage);
   const imagesData = await foundImages.data.hits;
   if (imagesData.length === 0) {
@@ -90,7 +136,8 @@ const imageSearch = async event => {
     foundImages.data.totalHits > 0 &&
     (page - 1) * per_page >= foundImages.data.totalHits
   ) {
-    observer.unobserve(loadMoreButton);
+    observator(false);
+    searchLimit = true;
     return Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
@@ -99,8 +146,8 @@ const imageSearch = async event => {
   return renderImages(imagesData);
 };
 const imageLoader = async () => {
-  loadMoreButton.style.display = 'none';
-  const searchedImage = inputField.value.trim();
+  observator(false);
+  let searchedImage = inputField.value.trim();
   const { foundImages, page, per_page } = await galleryItems(searchedImage);
   const imagesData = await foundImages.data.hits;
   console.log(
@@ -112,6 +159,7 @@ const imageLoader = async () => {
     foundImages.data.totalHits > 0 &&
     (page - 1) * per_page >= foundImages.data.totalHits
   ) {
+    searchLimit = true;
     observer.unobserve(loadMoreButton);
     return Notify.info(
       "We're sorry, but you've reached the end of search results."
@@ -131,20 +179,11 @@ const imageLoader = async () => {
     Notify.success(`Hurray! We found ${foundImages.data.totalHits} images`);
   }
   renderImages(imagesData);
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
-
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
+  automaticScroll();
   return;
 };
 form.addEventListener('submit', imageSearch);
 let lightbox = new SimpleLightbox('.gallery a');
-loadMoreButton.style.display = 'none';
-loadMoreButton.addEventListener('click', imageSearch);
 let debounce = 0;
 const observer = new IntersectionObserver(([entry]) => {
   if (!entry.isIntersecting) return;
@@ -153,3 +192,29 @@ const observer = new IntersectionObserver(([entry]) => {
     debounce = Date.now();
   }
 });
+loadMoreButton.addEventListener('click', () => imageLoader());
+imageLoaderChanger.addEventListener('click', event => {
+  if (automaticLoading === true) {
+    automaticLoading = false;
+    if (searchLimit === false) {
+      observator(true);
+    } else {
+      observator(false);
+    }
+    event.currentTarget.textContent = 'Loading more pictures on button';
+  } else {
+    automaticLoading = true;
+    if (searchLimit === false) {
+      observator(true);
+    } else {
+      observator(false);
+    }
+    event.currentTarget.textContent = 'Automatic loading of images';
+  }
+});
+
+scrollUpButton.addEventListener('click', () => {
+  automaticScrollUp();
+});
+loadMoreAutomatic.style.display = 'none';
+loadMoreButton.style.display = 'none';
