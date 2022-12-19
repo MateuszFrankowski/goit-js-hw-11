@@ -112,7 +112,7 @@ const imageSearch = async event => {
       "We're sorry, but you've reached the end of search results."
     );
   }
-  oldSearchedImage = searchedImage;
+  //oldSearchedImage = searchedImage;
   observator(false);
   window.scrollTo(0, 0);
   searchLimit = false;
