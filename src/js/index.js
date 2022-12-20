@@ -11,7 +11,7 @@ const inputField = document.querySelector('input[name="searchQuery"]');
 const loadMoreButton = document.querySelector('button.load-more');
 const loadMoreAutomatic = document.querySelector('div.automatic-loading');
 const scrollUpButton = document.querySelector('button.scroll-up');
-
+const amountOfLoadedPIctures =document.querySelectorAll("div.gallery__card")
 const imageLoaderChanger = document.querySelector('button.changer');
 const form = document.querySelector('form');
 const automaticScroll = () => {
@@ -196,7 +196,7 @@ loadMoreButton.addEventListener('click', () => imageLoader());
 imageLoaderChanger.addEventListener('click', event => {
   if (automaticLoading === true) {
     automaticLoading = false;
-    if (searchLimit === false) {
+    if (searchLimit === false || amountOfLoadedPIctures==0) {
       observator(true);
     } else {
       observator(false);
@@ -204,7 +204,7 @@ imageLoaderChanger.addEventListener('click', event => {
     event.currentTarget.textContent = 'Loading more pictures on button';
   } else {
     automaticLoading = true;
-    if (searchLimit === false) {
+    if (searchLimit === false || amountOfLoadedPIctures==0) {
       observator(true);
     } else {
       observator(false);
