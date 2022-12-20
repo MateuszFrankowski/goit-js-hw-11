@@ -11,7 +11,7 @@ const inputField = document.querySelector('input[name="searchQuery"]');
 const loadMoreButton = document.querySelector('button.load-more');
 const loadMoreAutomatic = document.querySelector('div.automatic-loading');
 const scrollUpButton = document.querySelector('button.scroll-up');
-const amountOfLoadedPIctures =document.querySelectorAll("div.gallery__card")
+const amountOfLoadedPIctures =document.querySelectorAll("div.gallery__card").length
 const imageLoaderChanger = document.querySelector('button.changer');
 const form = document.querySelector('form');
 const automaticScroll = () => {
