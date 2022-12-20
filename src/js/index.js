@@ -196,7 +196,7 @@ loadMoreButton.addEventListener('click', () => imageLoader());
 imageLoaderChanger.addEventListener('click', event => {
   if (automaticLoading === true) {
     automaticLoading = false;
-    if (searchLimit === false || amountOfLoadedPIctures==0) {
+    if (searchLimit === false && amountOfLoadedPIctures==0) {
       observator(true);
     } else {
       observator(false);
@@ -204,7 +204,7 @@ imageLoaderChanger.addEventListener('click', event => {
     event.currentTarget.textContent = 'Loading more pictures on button';
   } else {
     automaticLoading = true;
-    if (searchLimit === false || amountOfLoadedPIctures==0) {
+    if (searchLimit === false && amountOfLoadedPIctures==0) {
       observator(true);
     } else {
       observator(false);
